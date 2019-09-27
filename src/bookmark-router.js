@@ -55,6 +55,20 @@ bookmarkRouter
     }
     res.status(200).json(bookmark);
   })
-  .delete();
+  .delete((req, res) => {
+    const { id } = req.params;
+    const bookmark = bookmarks.find(bookmark => bookmark.id === id);
+    const bookmarkID = bookmarks.findIndex(bookmark => bookmark.id === id);
+    if(!id) {
+      logger.error('id is required');
+      return res.status(400).json('invalid data');
+    }
+    if(!bookmark) {
+      logger.error(`id ${id} not found`);
+      return res.status(400).json('invalid data');
+    }
+    bookmarks.splice(bookmarkID, 1);
+    res.status(204).end();
+  });
 
 module.exports = bookmarkRouter;
