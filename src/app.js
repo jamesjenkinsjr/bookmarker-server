@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
 const logger = require('./logger');
 const bookmarkRouter = require('./bookmark-router');
+const url = require('url');
 
 const app = express();
 
@@ -32,12 +33,17 @@ app.use((error, req, res, next) => {
 
 // validate Bearer token
 app.use((req, res, next) => {
+  const originURL = req.headers.origin;
+  const appExpectedOriginURL = 'https://jamesjenkinsjr.github.io'; 
+  
   const token = process.env.API_KEY;
   const authToken = req.get('Authorization');
 
-  if(!authToken || authToken.split(' ')[1] !== token) {
-    logger.error(`Unauthorized request to path: ${req.path}`);
-    return res.status(401).json({error: 'Unauthorized request'});
+  if(originURL !== appExpectedOriginURL) {
+    if(!authToken || authToken.split(' ')[1] !== token) {
+      logger.error(`Unauthorized request to path: ${req.path}`);
+      return res.status(401).json({error: 'Unauthorized request'});
+    }
   }
   next();
 });
