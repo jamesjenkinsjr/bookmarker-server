@@ -53,7 +53,7 @@ bookmarkRouter
       logger.error(`id ${id} not found`);
       return res.status(400).json('invalid data');
     }
-    res.status(200).json(bookmark);
+    return res.status(200).json(bookmark);
   })
   .delete((req, res) => {
     const { id } = req.params;
@@ -68,7 +68,7 @@ bookmarkRouter
       return res.status(400).json('invalid data');
     }
     bookmarks.splice(bookmarkID, 1);
-    res.status(204).end();
+    return res.status(204).json('Deleted');
   });
 
 module.exports = bookmarkRouter;
