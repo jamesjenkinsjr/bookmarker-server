@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
 const logger = require('./logger');
+const bookmarkRouter = require('./bookmark-router');
 
 const app = express();
 
@@ -39,8 +40,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/', (req, res) => {
-  return res.json('Hello, world!'); 
-});
+app.use('/bookmark', bookmarkRouter);
+app.use('/bookmarks', bookmarkRouter);
 
 module.exports = app;
