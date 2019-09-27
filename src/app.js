@@ -35,9 +35,10 @@ app.use((req, res, next) => {
   const token = process.env.API_KEY;
   const authToken = req.get('Authorization');
 
-  (!authToken || authToken.split(' ')[1] !== token) 
-    && logger.error(`Unauthorized request to path: ${req.path}`)
-    && res.status(401).json({error: 'Unauthorized request'});
+  if(!authToken || authToken.split(' ')[1] !== token) {
+    logger.error(`Unauthorized request to path: ${req.path}`);
+    return res.status(401).json({error: 'Unauthorized request'});
+  }
   next();
 });
 
