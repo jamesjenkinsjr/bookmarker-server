@@ -32,7 +32,7 @@ bookmarkRouter
       title,
       url,
       content,
-      rating
+      rating: parseInt(rating)
     };
 
     bookmarks.push(newBookmark);

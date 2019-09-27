@@ -1,17 +1,17 @@
 const bookmarks = [
   {
     id: 'jkasdff-aksdhf-jasdkgs',
-    title: 'My Website',
-    url: 'https://google.com',
-    content: 'Long description here',
-    rating: '4'
+    title: 'My Portfolio',
+    url: 'https://jamesjenkins.dev',
+    content: 'James\' React portfolio',
+    rating: 5
   },
   {
     id: 'jkasdff-sdfsdf-ffffdd',
-    title: 'My Other Website',
-    url: 'https://bing.com',
+    title: 'Google',
+    url: 'https://google.com',
     content: 'Long description here',
-    rating: '2'
+    rating: 4
   }
 ];
 
