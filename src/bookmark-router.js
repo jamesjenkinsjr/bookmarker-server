@@ -12,7 +12,9 @@ bookmarkRouter
     return res.status(200).json(bookmarks);
   })
   .post((req, res) => {
-    !req.body && res.status(400).json('Invalid data');
+    if(!req.body) {
+      return res.status(400).json('Invalid data');
+    }
     const { title, url, content = '', rating = 5,  } = req.body;
     if(!title) {
       logger.error('title is required');
