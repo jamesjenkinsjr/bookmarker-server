@@ -40,4 +40,21 @@ bookmarkRouter
     return res.status(201).json(`Bookmark with id ${newBookmark.id} created`);
   });
 
+bookmarkRouter
+  .route('/:id')
+  .get((req, res) => {
+    const { id } = req.params;
+    const bookmark = bookmarks.find(bookmark => bookmark.id === id);
+    if(!id) {
+      logger.error('id is required');
+      return res.status(400).json('invalid data');
+    }
+    if(!bookmark) {
+      logger.error(`id ${id} not found`);
+      return res.status(400).json('invalid data');
+    }
+    res.status(200).json(bookmark);
+  })
+  .delete();
+
 module.exports = bookmarkRouter;
