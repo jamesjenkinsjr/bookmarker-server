@@ -52,18 +52,21 @@ bookmarkRouter
 
 bookmarkRouter
   .route('/:id')
-  .get((req, res) => {
+  .get((req, res, next) => {
+    const db = req.app.get('db');
     const { id } = req.params;
-    const bookmark = bookmarks.find(bookmark => bookmark.id === id);
     if(!id) {
       logger.error('id is required');
       return res.status(400).json({error: 'invalid data - check that your id is valid'});
     }
-    if(!bookmark) {
-      logger.error(`id ${id} not found`);
-      return res.status(400).json({error: 'invalid data - check that your id is valid'});
-    }
-    return res.status(200).json(bookmark);
+    BookmarksService.getBookmarkByID(db, id)
+      .then(bookmark => {
+        if(!bookmark) {
+          res.status(400).json({error: {message: 'invalid data - check that your id is valid'}});
+        }
+        return res.json(bookmark);
+      })
+      .catch(error => next(error));
   })
   .delete((req, res) => {
     const { id } = req.params;

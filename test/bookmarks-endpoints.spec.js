@@ -11,9 +11,7 @@ describe('Bookmarks endpoints', () => {
       client: 'pg',
       connection: process.env.TEST_DB_URL
     });
-    console.log(process.env.TEST_DB_URL);
-    console.log(process.env.NODE_ENV);
-    app.use('db', db);
+    app.set('db', db);
   });
   before('clean bookmark_items table', () => {
     return db('bookmark_items').truncate();
@@ -40,5 +38,24 @@ describe('Bookmarks endpoints', () => {
         .get('/bookmarks')
         .expect(200, testData);
     });
+    it('GET getBookmarkByID returns 200 with expected data', () => {
+      return supertest(app)
+        .get('/bookmarks/1')
+        .expect(200, testData[0]);
+    });
+  });
+  context('bookmark_items has no data', () => {
+    const testData = [];
+    it('GET getAllBookmarks returns 200 and empty array', () => {
+      return supertest(app)
+        .get('/bookmarks')
+        .expect(200, testData);
+    });
+    it('GET getBookmarkById returns 400 and error', () => {
+      return supertest(app)
+        .get('/bookmarks/1')
+        .expect(400, {error: {message: 'invalid data - check that your id is valid'}});
+    });
+
   });
 });
