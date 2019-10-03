@@ -5,11 +5,15 @@ const uuid = require('uuid/v4');
 const validator = require('validator');
 
 const bookmarkRouter = express.Router();
+const { BookmarksService } = require('./bookmarks-service');
 
 bookmarkRouter
   .route('/')
-  .get((req, res) => {
-    return res.status(200).json(bookmarks);
+  .get((req, res, next) => {
+    const db = req.app.get('db');
+    BookmarksService.getAllBookmarks(db)
+      .then(bookmarks => res.json(bookmarks))
+      .catch(error => next(error));
   })
   .post((req, res) => {
     if(!req.body) {

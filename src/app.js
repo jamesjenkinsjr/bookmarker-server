@@ -19,6 +19,28 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// validate Bearer token
+// if(process.env.NODE_ENV !== 'development' || process.env.NODE_ENV !== 'test') {
+//   app.use((req, res, next) => {
+//     const originURL = req.headers.origin;
+//     const appExpectedOriginURL = 'https://jamesjenkinsjr.github.io'; 
+    
+//     const token = process.env.API_KEY;
+//     const authToken = req.get('Authorization');
+  
+//     if(originURL !== appExpectedOriginURL) {
+//       if(!authToken || authToken.split(' ')[1] !== token) {
+//         logger.error(`Unauthorized request to path: ${req.path}`);
+//         return res.status(401).json({error: 'Unauthorized request'});
+//       }
+//     }
+//     next();
+//   });
+// }
+
+app.use('/bookmark', bookmarkRouter);
+app.use('/bookmarks', bookmarkRouter);
+
 // error handler
 app.use((error, req, res, next) => {
   let response;
@@ -30,25 +52,5 @@ app.use((error, req, res, next) => {
   }
   return res.status(500).json(response);
 });
-
-// validate Bearer token
-app.use((req, res, next) => {
-  const originURL = req.headers.origin;
-  const appExpectedOriginURL = 'https://jamesjenkinsjr.github.io'; 
-  
-  const token = process.env.API_KEY;
-  const authToken = req.get('Authorization');
-
-  if(originURL !== appExpectedOriginURL) {
-    if(!authToken || authToken.split(' ')[1] !== token) {
-      logger.error(`Unauthorized request to path: ${req.path}`);
-      return res.status(401).json({error: 'Unauthorized request'});
-    }
-  }
-  next();
-});
-
-app.use('/bookmark', bookmarkRouter);
-app.use('/bookmarks', bookmarkRouter);
 
 module.exports = app;
