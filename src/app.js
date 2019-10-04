@@ -38,8 +38,8 @@ if(process.env.NODE_ENV !== 'development') {
   });
 }
 
-app.use('/bookmark', bookmarkRouter);
-app.use('/bookmarks', bookmarkRouter);
+app.use('/api/bookmark', bookmarkRouter);
+app.use('/api/bookmarks', bookmarkRouter);
 
 // error handler
 app.use((error, req, res, next) => {

@@ -1,9 +1,6 @@
 const express = require('express');
-const bookmarks = require('./store');
 const logger = require('./logger');
 const xss = require('xss');
-const uuid = require('uuid/v4');
-const validator = require('validator');
 
 const bookmarkRouter = express.Router();
 const { BookmarksService } = require('./bookmarks-service');
@@ -13,7 +10,7 @@ bookmarkRouter
   .get((req, res, next) => {
     const db = req.app.get('db');
     BookmarksService.getAllBookmarks(db)
-      .then(bookmarks => res.json(bookmarks))
+      .then(bookmarks => res.status(200).json(bookmarks))
       .catch(error => next(error));
   })
   .post((req, res, next) => {
@@ -35,6 +32,18 @@ bookmarkRouter
 
 bookmarkRouter
   .route('/:id')
+  .all((req, res, next) => {
+    const { id } = req.params;
+    const db = req.app.get('db');
+    BookmarksService.getBookmarkByID(db, id)
+      .then(bookmark => {
+        if(!bookmark) {
+          return res.status(404).json({error: {message: 'invalid data - check that your id is valid'}});
+        }
+        next();
+      })
+      .catch(error => next(error));
+  })
   .get((req, res, next) => {
     const db = req.app.get('db');
     const { id } = req.params;
@@ -44,9 +53,6 @@ bookmarkRouter
     }
     BookmarksService.getBookmarkByID(db, id)
       .then(bookmark => {
-        if(!bookmark) {
-          return res.status(400).json({error: {message: 'invalid data - check that your id is valid'}});
-        }
         return res.json({
           id: bookmark.id,
           title: xss(bookmark.title),
@@ -55,6 +61,18 @@ bookmarkRouter
           rating: bookmark.rating
         });
       })
+      .catch(error => next(error));
+  })
+  .patch((req, res, next) => {
+    const db = req.app.get('db');
+    const { id } = req.params;
+    const { title, url, description, rating } = req.body;
+    const updatedBookmark = { title, url, description, rating };
+    if(!id) {
+      return res.status(404).json({error: {message: 'id not found'}});
+    }
+    BookmarksService.updateBookmark(db, id, updatedBookmark)
+      .then(serverRes => res.status(204).end())
       .catch(error => next(error));
   })
   .delete((req, res, next) => {

@@ -33,12 +33,12 @@ describe('Bookmarks endpoints', () => {
     });
     it('GET getAllBookmarks returns 200 with expected data', () => {
       return supertest(app)
-        .get('/bookmarks')
+        .get('/api/bookmarks')
         .expect(200, testData);
     });
     it('GET getBookmarkByID returns 200 with expected data', () => {
       return supertest(app)
-        .get('/bookmarks/1')
+        .get('/api/bookmarks/1')
         .expect(200, testData[0]);
     });
     it('POST addBookmark returns 201 and expected data present in db', () => {
@@ -50,7 +50,7 @@ describe('Bookmarks endpoints', () => {
         rating: 4,
       };
       return supertest(app)
-        .post('/bookmarks')
+        .post('/api/bookmarks')
         .send(testBookmark)
         .expect(201)
         .expect(res => {
@@ -61,25 +61,38 @@ describe('Bookmarks endpoints', () => {
           expect(res.body.rating).to.eql(testBookmark.rating);
         })
         .then(res => {
-          supertest(app)
-            .get(`/bookmarks/${res.body.id}`)
+          return supertest(app)
+            .get(`/api/bookmarks/${res.body.id}`)
             .expect(res.body);
         });
     });
     it('POST addBookmark gives 400 status and error when missing required fields', () => {
       return supertest(app)
-        .post('/bookmarks')
+        .post('/api/bookmarks')
         .send({rating: 4})
         .expect(400, {error: {message: 'invalid data - title and url are required'}});
     });
     it('DELETE deleteBookmark return 204 and item is deleted', () => {
       return supertest(app)
-        .delete(`/bookmarks/${testData[0].id}`)
+        .delete(`/api/bookmarks/${testData[0].id}`)
         .expect(204)
         .then(res => {
-          supertest(app)
-            .get(`/bookmarks/${testData[0].id}`)
-            .expect(400, {error: {message: 'invalid data - check your id'}});
+          return supertest(app)
+            .get(`/api/bookmarks/${testData[0].id}`)
+            .expect(404, {error: {message: 'invalid data - check that your id is valid'}});
+        });
+    });
+    it('PATCH returns 204 and updates are reflected', () => {
+      const updatedBookmarkID = testData[0].id;
+      const updateData = { title: 'updated title', url: 'http://updated.com', description: 'updated description', rating: 1 };
+      return supertest(app)
+        .patch(`/api/bookmarks/${updatedBookmarkID}`)
+        .send(updateData)
+        .expect(204)
+        .then( res => {
+          return supertest(app)
+            .get(`/api/bookmarks/${updatedBookmarkID}`)
+            .expect({...updateData, id: updatedBookmarkID});
         });
     });
 
@@ -88,15 +101,23 @@ describe('Bookmarks endpoints', () => {
     const testData = [];
     it('GET getAllBookmarks returns 200 and empty array', () => {
       return supertest(app)
-        .get('/bookmarks')
+        .get('/api/bookmarks')
         .expect(200, testData);
     });
     it('GET getBookmarkById returns 400 and error', () => {
       return supertest(app)
-        .get('/bookmarks/1')
-        .expect(400, {
+        .get('/api/bookmarks/1')
+        .expect(404, {
           error: { message: 'invalid data - check that your id is valid' },
         });
     });
+    it('PATCH returns 404 and error', () => {
+      const testData = { title: 'foo', url: 'http://update.com', description: 'stuff', rating: 4 };
+      return supertest(app)
+        .patch('/api/bookmarks/12345')
+        .send(testData)
+        .expect(404, {error: {message: 'invalid data - check that your id is valid'}});
+    });
+
   });
 });
